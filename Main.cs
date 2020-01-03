@@ -49,7 +49,6 @@ namespace AuthServer
 
         public void ProcessRequest(HttpListenerContext ctx)
         {
-            System.Threading.Thread.Sleep(50);
             try
             {
                 ProcessRequestInternal(ctx);
@@ -137,8 +136,7 @@ namespace AuthServer
             {
                 HttpListenerContext ctx = await listener.GetContextAsync();
 
-                //Task.Run(() => App.Urlmanager.ProcessRequest(ctx));
-                App.Urlmanager.ProcessRequest(ctx);
+                Task.Run(() => App.Urlmanager.ProcessRequest(ctx));
             }
         }
 
