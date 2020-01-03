@@ -29,13 +29,14 @@ namespace AuthServer
             IdentityModelEventSource.ShowPII = true;
         }
 
-        public void WriteAnswer(HttpListenerContext ctx, string data)
+        public void WriteAnswer(HttpListenerContext ctx, string data, int statusCode = 200)
         {
             byte[] result = Encoding.UTF8.GetBytes(data);
             ctx.Response.ContentType = "text/html";
             ctx.Response.ContentEncoding = Encoding.UTF8;
             ctx.Response.ContentLength64 = result.LongLength;
 
+            ctx.Response.StatusCode = statusCode;
             ctx.Response.OutputStream.WriteAsync(result, 0, result.Length);
             ctx.Response.Close();
         }
@@ -94,14 +95,14 @@ namespace AuthServer
         
         private void HandleException(HttpListenerContext ctx, Exception e)
         {
-            //TODO: in both of this conditions returned code should be >=400
             if (e is HttpException)
             {
-                WriteAnswer(ctx, e.Message);
+                HttpException exc = (HttpException)(e);
+                WriteAnswer(ctx, exc.Message, exc.GetHttpCode());
             }
             else
             {
-                WriteAnswer(ctx, "Unknow exception occured !");
+                WriteAnswer(ctx, "Unknow exception occured !", 500);
             }
         }
 
