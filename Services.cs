@@ -82,8 +82,8 @@ namespace AuthService
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, username),
-                    new Claim(ClaimTypes.Role, role.Value)
+                    new Claim(CustomClaimTypes.Name.Value, username),
+                    new Claim(CustomClaimTypes.Role.Value, role.Value)
                 }),
                 Expires = DateTime.UtcNow.AddDays(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -140,7 +140,7 @@ namespace AuthService
 
         public bool IsAdminRole()
         {
-            string role = GetClaim(ClaimTypes.Role);
+            string role = GetClaim(CustomClaimTypes.Role.Value);
             if (role != null && role == Role.Admin.Value)
             {
                 return true;
@@ -151,7 +151,7 @@ namespace AuthService
         }
         public bool IsDevRole()
         {
-            string role = GetClaim(ClaimTypes.Role);
+            string role = GetClaim(CustomClaimTypes.Role.Value);
             if (role != null && role == Role.Dev.Value)
             {
                 return true;
@@ -162,7 +162,7 @@ namespace AuthService
         }
         public bool IsUserRole()
         {
-            string role = GetClaim(ClaimTypes.Role);
+            string role = GetClaim(CustomClaimTypes.Role.Value);
             if (role != null && role == Role.User.Value)
             {
                 return true;

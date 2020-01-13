@@ -17,3 +17,12 @@ public class Role
     public static Role Dev { get { return new Role("dev"); } }
     public static Role Admin { get { return new Role("admin"); } }
 }
+
+public class CustomClaimTypes
+{
+    private CustomClaimTypes(string value) { Value = value; }
+    public string Value { get; }
+
+    public static CustomClaimTypes Name { get { return new CustomClaimTypes("name"); } }
+    public static CustomClaimTypes Role { get { return new CustomClaimTypes("role"); } }
+}
