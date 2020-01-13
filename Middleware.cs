@@ -6,6 +6,7 @@ public class ErrorHandler
     public bool IsRequestFailed { get { return m_result != null; } }
     public HttpResult result { get { return m_result; } }
     public void SetErrorData(HttpResult result) { m_result = result; }
+    public void SetErrorData(int code, string message) { m_result = new HttpResult(code, message); }
 
     private HttpResult m_result;
 }

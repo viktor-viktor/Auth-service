@@ -8,7 +8,7 @@ public class HttpResult
     public string message { get; }
 }
 
-class Role
+public class Role
 {
     private Role(string value) { Value = value; }
     public string Value { get; }

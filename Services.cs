@@ -29,14 +29,14 @@ namespace AuthService
 
         public Token SignInUser()
         {
-            string retVal = m_mongo.GetUserData(m_username, m_password);
-            if (retVal == null)
+            User userData = m_mongo.GetUserData(m_username, m_password);
+            if (userData == null)
             {
                 m_errorHandler.SetErrorData(new HttpResult(400, "User with such credentials isn't found ! "));
                 return null;
             }
 
-            string token = CreateToken(m_username);
+            string token = CreateToken(m_username, userData.role);
             
             return new Token { token = token };
         }

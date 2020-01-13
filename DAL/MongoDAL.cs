@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -29,22 +26,13 @@ namespace AuthService.DAL
         private MongoClient m_client = null;
         private IMongoDatabase m_db = null;
         
-        private class User
+        public bool AddNewUer(string name, string psw, Role role = null)
         {
-            public User(string _name, string _psw){ name = _name; psw = _psw; }
-            public User() { }
-            public ObjectId Id;
-            public string name;
-            public string psw;
-        }
+            if (role == null) role = Role.User;
 
-        public bool AddNewUer(string name, string psw)
-        {
             IMongoCollection<User> users = m_db.GetCollection<User>("Users");
 
-            User nUser = new User();
-            nUser.name = name;
-            nUser.psw = psw;
+            User nUser = new User() { name = name, psw = psw, role = role };
 
             try
             {
@@ -67,17 +55,18 @@ namespace AuthService.DAL
             return true;
         }
 
-        public string GetUserData(string name, string psw)
+        public User GetUserData(string name, string psw)
         {
-            IMongoCollection<BsonDocument> users = m_db.GetCollection<BsonDocument>("Users");
+            IMongoCollection<User> users = m_db.GetCollection<User>("Users");
 
-            var value = users.Find<BsonDocument>(new BsonDocument() { { "name", name }, { "psw", psw } });
+            var filter = Builders<User>.Filter.Eq("name", name) & Builders<User>.Filter.Eq("psw", psw);
+            var value = users.Find<User>(filter);
             if (value.CountDocuments() == 0)
             {
                 return null;
             }
 
-            return name;
+            return value.First<User>();
         }
     }
 }
