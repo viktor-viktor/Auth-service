@@ -68,8 +68,10 @@ namespace AuthService
             return "User successfully removed !";
         }
 
-        private string CreateToken(string username)
+        private string CreateToken(string username, Role role = null)
         {
+            if (role == null) role = Role.Admin;
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(Secret.secret);
 
@@ -77,7 +79,8 @@ namespace AuthService
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, username)
+                    new Claim(ClaimTypes.Name, username),
+                    new Claim(ClaimTypes.Role, role.Value)
                 }),
                 Expires = DateTime.UtcNow.AddDays(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -132,7 +135,41 @@ namespace AuthService
             }
         }
 
-        public string GetClaim(string name)
+        public bool IsAdminRole()
+        {
+            string role = GetClaim(ClaimTypes.Role);
+            if (role != null && role == Role.Admin.Value)
+            {
+                return true;
+            }
+
+            m_errorHandler.SetErrorData(new HttpResult(403, "You lack permissions !"));
+            return false;
+        }
+        public bool IsDevRole()
+        {
+            string role = GetClaim(ClaimTypes.Role);
+            if (role != null && role == Role.Dev.Value)
+            {
+                return true;
+            }
+
+            m_errorHandler.SetErrorData(new HttpResult(403, "You lack permissions !"));
+            return false;
+        }
+        public bool IsUserRole()
+        {
+            string role = GetClaim(ClaimTypes.Role);
+            if (role != null && role == Role.User.Value)
+            {
+                return true;
+            }
+
+            m_errorHandler.SetErrorData(new HttpResult(403, "You lack permissions !"));
+            return false;
+        }
+
+        private string GetClaim(string name)
         {
             if (m_token == null)
             {
