@@ -152,7 +152,7 @@ namespace AuthService
         public bool IsDevRole()
         {
             string role = GetClaim(CustomClaimTypes.Role.Value);
-            if (role != null && role == Role.Dev.Value)
+            if (role != null && role == Role.Dev.Value || role == Role.Admin.Value)
             {
                 return true;
             }
@@ -163,7 +163,7 @@ namespace AuthService
         public bool IsUserRole()
         {
             string role = GetClaim(CustomClaimTypes.Role.Value);
-            if (role != null && role == Role.User.Value)
+            if (role != null && role == Role.User.Value || role == Role.Dev.Value || role == Role.Admin.Value)
             {
                 return true;
             }
