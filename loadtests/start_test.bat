@@ -1,1 +1,0 @@
-pipenv run locust_start.bat
