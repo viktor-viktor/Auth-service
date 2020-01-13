@@ -87,7 +87,7 @@ namespace AuthService.Binding.Rest
         private ErrorHandler m_errorHandler;
     }
 
-    [Route("api/[controller]")]
+    [Route("api/authorization")]
     [ApiController]
     public class AuthorizationController : ControllerBase
     {
@@ -96,13 +96,31 @@ namespace AuthService.Binding.Rest
             m_errorHandler = errorHandler;
         }
 
-        [HttpGet]
+        [HttpGet("{role}")]
         //TODO: change return value on something valid (user should receive json data)
         // all validation is already done at constructor
-        public void Get()
+        public void Get(string role)
         {
             AuthorizationService service = null;
-            TryGetService(out service);
+            if (TryGetService(out service))
+            {
+                if (role == Role.Admin.Value)
+                {
+                    service.IsAdminRole();
+                }
+                else if (role == Role.Dev.Value)
+                {
+                    service.IsDevRole();
+                }
+                else if (role == Role.User.Value)
+                {
+                    service.IsUserRole();
+                }
+                else
+                {
+                    m_errorHandler.SetErrorData(400, "Wrong role specified at url");
+                }
+            }
         }
 
         private bool TryGetService(out AuthorizationService service)
