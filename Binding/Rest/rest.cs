@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 
 using AuthService.DAL;
+using AuthService.Models;
 
 namespace AuthService.Binding.Rest
 {
@@ -20,9 +21,9 @@ namespace AuthService.Binding.Rest
 
         [HttpGet]
         //TODO: change returning valie on something valid, client should recevie json
-        public string Get()
+        public Token Get()
         {
-            string retVal = null;
+            Token retVal = null;
             AuthenticationService service = TryCreateAuthService();
             if (service != null)
             {
@@ -33,13 +34,16 @@ namespace AuthService.Binding.Rest
         }
 
         [HttpPost]
-        public void Post()
+        public Token Post()
         {
             AuthenticationService service = TryCreateAuthService();
+            Token retVal = null;
             if (service != null)
             {
-                string retVal = service.RegisterUser();
+                retVal = service.RegisterUser();
             }
+
+            return retVal;
         }
 
         [HttpDelete]

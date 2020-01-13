@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 
 using AuthService.DAL;
+using AuthService.Models;
 
 namespace AuthService
 {
@@ -26,7 +27,7 @@ namespace AuthService
             m_password = password;
         }
 
-        public string SignInUser()
+        public Token SignInUser()
         {
             string retVal = m_mongo.GetUserData(m_username, m_password);
             if (retVal == null)
@@ -37,19 +38,23 @@ namespace AuthService
 
             string token = CreateToken(m_username);
             
-            return token;
+            return new Token { token = token };
         }
 
-        public string RegisterUser()
+        public Token RegisterUser()
         {
-            string answer = "User with such creds already exist";
-
+            string token = null;
             if (m_mongo.AddNewUer(m_username, m_password))
             {
-                answer = CreateToken(m_username);
+                token = CreateToken(m_username);
+            }
+            else
+            {
+                m_errorHandler.SetErrorData(new HttpResult(400, "User with such creds already exist"));
+                return null;
             }
 
-            return answer;
+            return new Token { token = token };
         }
 
         public string UnregisterUser()
