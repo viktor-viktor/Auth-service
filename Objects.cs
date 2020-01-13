@@ -11,7 +11,7 @@ public class HttpResult
 public class Role
 {
     private Role(string value) { Value = value; }
-    public string Value { get; }
+    public string Value { get; set; }
 
     public static Role User { get { return new Role("user"); } }
     public static Role Dev { get { return new Role("dev"); } }

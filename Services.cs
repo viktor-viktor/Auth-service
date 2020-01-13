@@ -70,7 +70,10 @@ namespace AuthService
 
         private string CreateToken(string username, Role role = null)
         {
-            if (role == null) role = Role.Admin;
+            if (role == null)
+            {
+                role = Role.Admin;
+            }
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(Secret.secret);

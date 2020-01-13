@@ -89,20 +89,11 @@ namespace AuthService.Binding.Rest
 
     [Route("api/[controller]")]
     [ApiController]
-    class AuthorizationController : ControllerBase
+    public class AuthorizationController : ControllerBase
     {
         public AuthorizationController(ErrorHandler errorHandler)
         {
-            StringValues header;
-            if (Request.Headers.TryGetValue("Authorization", out header))
-            {
-                string authHeader = header.ToString();
-                authHeader = authHeader.Substring("Bearer ".Length).Trim();
-
-                m_errorHandler = errorHandler;
-                m_service = new AuthorizationService(m_errorHandler);
-                m_service.Init(authHeader);
-            }
+            m_errorHandler = errorHandler;
         }
 
         [HttpGet]
@@ -110,6 +101,26 @@ namespace AuthService.Binding.Rest
         // all validation is already done at constructor
         public void Get()
         {
+            AuthorizationService service = null;
+            TryGetService(out service);
+        }
+
+        private bool TryGetService(out AuthorizationService service)
+        {
+            StringValues header;
+            service = null;
+            if (Request.Headers.TryGetValue("Authorization", out header))
+            {
+                string authHeader = header.ToString();
+                authHeader = authHeader.Substring("Bearer ".Length).Trim();
+
+                service = new AuthorizationService(m_errorHandler);
+                service.Init(authHeader);
+
+                return true;
+            }
+
+            return false;
         }
 
         private AuthorizationService m_service;
