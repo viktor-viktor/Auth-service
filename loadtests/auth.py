@@ -18,21 +18,21 @@ class UserBehavior(TaskSet):
         #print('name:  ' + self.name)
         #print('psw:  ' + self.psw)
 
-        with self.client.post("registration", headers={'Authorization': 'Basic ' + self._get_name_psw_encoded(self.name, self.psw)}) as response:
-            self.token = str(response.content)
+        with self.client.post("api/authentication", headers={'Authorization': 'Basic ' + self._get_name_psw_encoded(self.name, self.psw)}) as response:
+            self.token = response.json()['token']
             #print(response.url)
             #print(str(response.reason) + '   ' + str(response.status_code) + '   ' + str(response.text))
             #print('/n/n/n/n ' + self.token + ' /n/n/n/n/n/n')
 
     def on_stop(self):
-        self.client.delete("registration", headers={'Authorization': 'Basic ' + self._get_name_psw_encoded(self.name, self.psw)})
+        self.client.delete("api/authentication", headers={'Authorization': 'Basic ' + self._get_name_psw_encoded(self.name, self.psw)})
 
     @task(1)
     def auth(self):
         if self.token:
             #UserBehavior.req += 1
             #print(str(UserBehavior.req) + "req")
-            self.client.get('auth', headers={'Authorization': 'Bearer ' + self.token})
+            self.client.get('api/authorization/user', headers={'Authorization': 'Bearer ' + self.token})
             #UserBehavior.resp += 1
             #print(str(UserBehavior.resp) + 'resp')
 
