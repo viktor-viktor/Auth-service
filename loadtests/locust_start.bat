@@ -1,7 +1,7 @@
-start /b locust -f auth.py --master
-start /b locust -f auth.py --slave
-start /b locust -f auth.py --slave
-start /b locust -f auth.py --slave
-start /b locust -f auth.py --slave
-start /b locust -f auth.py --slave
-start /b locust -f auth.py --slave
+start /b locust -f auth.py --master --loglevel CRITICAL
+start /b locust -f auth.py --slave --loglevel CRITICAL
+start /b locust -f auth.py --slave --loglevel CRITICAL
+start /b locust -f auth.py --slave --loglevel CRITICAL
+start /b locust -f auth.py --slave --loglevel CRITICAL
+start /b locust -f auth.py --slave --loglevel CRITICAL
+start /b locust -f auth.py --slave --loglevel CRITICAL
