@@ -5,25 +5,31 @@
     "iisExpress": {
       "applicationUrl": "http://localhost:64853",
       "sslPort": 0
+
     }
   },
   "profiles": {
-    "IIS Express": {
-      "commandName": "IISExpress",
-      "launchBrowser": false,
-      "launchUrl": "api/authentication",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    "AuthService": {
+    "Dev": {
       "commandName": "Project",
-      "launchUrl": "api/authentication",
-      "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "https://localhost:5001;http://localhost:5000"
+      "applicationUrl": "http://localhost:64853",
+      "Logging": {
+        "LogLevel": {
+          "Default": "Debug"
+        }
+      }
+    },
+    "Prod": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Production"
+      },
+      "applicationUrl": "http://localhost:64853",
+      "Logging": {
+        "LogLevel": "Warning"
+      }
     }
   }
 }
