@@ -35,12 +35,6 @@ namespace AuthService
             {
                 app.UseDeveloperExceptionPage();
             }
-            else
-            {
-                app.UseHsts();
-            }
-
-            app.UseHttpsRedirection();
 
             app.UseMiddleware<ErrorHandlerMiddleware>();
 
