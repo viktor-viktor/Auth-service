@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 
 using AuthService.DAL;
+using AuthService.Middleware;
 
 namespace AuthService
 {
@@ -35,6 +36,8 @@ namespace AuthService
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseAuthorization();
 
             app.UseMiddleware<ErrorHandlerMiddleware>();
 
