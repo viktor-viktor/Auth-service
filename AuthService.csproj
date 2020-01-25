@@ -1,22 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
-    <StartupObject>AuthService.Program</StartupObject>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="wwwroot\**" />
-    <Content Remove="wwwroot\**" />
-    <EmbeddedResource Remove="wwwroot\**" />
-    <None Remove="wwwroot\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
-    <PackageReference Include="MongoDB.Driver" Version="2.10.0" />
+    <PackageReference Include="MongoDB.Driver" Version="2.10.1" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.6.0" />
     <PackageReference Include="System.Text.Json" Version="4.7.0" />
   </ItemGroup>
+
 
 </Project>
