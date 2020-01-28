@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Text.Json;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
@@ -37,13 +38,13 @@ namespace AuthService.Binding.Rest
         }
 
         [HttpPost]
-        public Token Post()
+        public Token Post([FromBody] JsonElement data)
         {
             AuthenticationService service = TryCreateAuthService();
             Token retVal = null;
             if (service != null)
             {
-                retVal = service.RegisterUser();
+                retVal = service.RegisterUser(data);
             }
 
             return retVal;

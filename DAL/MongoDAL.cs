@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text.Json;
 
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -26,13 +27,13 @@ namespace AuthService.DAL
         private MongoClient m_client = null;
         private IMongoDatabase m_db = null;
         
-        public bool AddNewUer(string name, string psw, Role role = null)
+        public bool AddNewUer(string name, string psw, JsonElement data, Role role = null)
         {
             if (role == null) role = Role.User;
 
             IMongoCollection<User> users = m_db.GetCollection<User>("Users");
 
-            User nUser = new User() { name = name, psw = psw, role = role };
+            User nUser = new User() { name = name, psw = psw, role = role , Data = BsonDocument.Parse(JsonSerializer.Serialize(data)) };
 
             try
             {

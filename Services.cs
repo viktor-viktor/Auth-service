@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Text.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
@@ -42,10 +43,10 @@ namespace AuthService
             return new Token { token = token };
         }
 
-        public Token RegisterUser()
+        public Token RegisterUser(JsonElement data)
         {
             string token = null;
-            if (m_mongo.AddNewUer(m_username, m_password))
+            if (m_mongo.AddNewUer(m_username, m_password, data))
             {
                 token = CreateToken(m_username);
             }

@@ -8,6 +8,7 @@ namespace AuthService.DAL
         public ObjectId Id { get; set; }
         public string name { get; set; }
         public string psw { get; set; }
+        public BsonDocument Data { get; set; }
         public Role role { get; set; }
     }
 }
