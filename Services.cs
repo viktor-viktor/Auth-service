@@ -73,7 +73,7 @@ namespace AuthService
         {
             if (role == null)
             {
-                role = Role.Admin;
+                role = Role.User;
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -105,94 +105,4 @@ namespace AuthService
         private readonly ErrorHandler m_errorHandler;
     }
 
-    class AuthorizationService
-    {
-        public AuthorizationService(ErrorHandler errorHandler) { m_errorHandler = errorHandler; }
-        public void Init(string data)
-        {
-            var key = Encoding.ASCII.GetBytes(Secret.secret);
-            var validationParameters = new TokenValidationParameters
-            {
-                ValidateAudience = false,
-                ValidateIssuer = false,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key)
-            };
-            var tokenHandler = new JwtSecurityTokenHandler();
-            SecurityToken token = new JwtSecurityToken();
-
-            try
-            {
-                tokenHandler.ValidateToken(data, validationParameters, out token);
-            }
-            catch (Exception e)
-            {
-                m_errorHandler.SetErrorData(new HttpResult(401, e.Message));
-                return;
-            }
-
-            m_token = (JwtSecurityToken)(token);
-            if (m_token.ValidTo < DateTime.UtcNow)
-            {
-                m_errorHandler.SetErrorData(new HttpResult(401, "Token has expired"));
-                return;
-            }
-        }
-
-        public bool IsAdminRole()
-        {
-            string role = GetClaim(CustomClaimTypes.Role.Value);
-            if (role != null && role == Role.Admin.Value)
-            {
-                return true;
-            }
-
-            m_errorHandler.SetErrorData(new HttpResult(403, "You lack permissions !"));
-            return false;
-        }
-        public bool IsDevRole()
-        {
-            string role = GetClaim(CustomClaimTypes.Role.Value);
-            if (role != null && role == Role.Dev.Value || role == Role.Admin.Value)
-            {
-                return true;
-            }
-
-            m_errorHandler.SetErrorData(new HttpResult(403, "You lack permissions !"));
-            return false;
-        }
-        public bool IsUserRole()
-        {
-            string role = GetClaim(CustomClaimTypes.Role.Value);
-            if (role != null && role == Role.User.Value || role == Role.Dev.Value || role == Role.Admin.Value)
-            {
-                return true;
-            }
-
-            m_errorHandler.SetErrorData(new HttpResult(403, "You lack permissions !"));
-            return false;
-        }
-
-        private string GetClaim(string name)
-        {
-            if (m_token == null)
-            {
-                m_errorHandler.SetErrorData(new HttpResult(500, "Token not authorized at 'GetClaim'  method. Call AuthenticationService.Init first"));
-                return null;
-            }
-
-            foreach (Claim claim in m_token.Claims)
-            {
-                if (claim.Type == name)
-                {
-                    return claim.Value;
-                }
-            }
-
-            return null;
-        }
-
-        private JwtSecurityToken m_token;
-        private readonly ErrorHandler m_errorHandler;
-    }
 }

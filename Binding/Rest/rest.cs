@@ -3,12 +3,15 @@ using System.Text;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+using Microsoft.AspNetCore.Authorization;
 
 using AuthService.DAL;
 using AuthService.Models;
+using AuthService.Middleware;
 
 namespace AuthService.Binding.Rest
 {
+    [AllowAnonymous]
     [Route("api/[controller]")]
     [ApiController]
     public class AuthenticationController : ControllerBase
@@ -91,57 +94,22 @@ namespace AuthService.Binding.Rest
     [ApiController]
     public class AuthorizationController : ControllerBase
     {
-        public AuthorizationController(ErrorHandler errorHandler)
+        [Authorize(Policy = Policies.AdminOnly)]
+        [HttpGet("admin")]
+        public void GetAdmin()
         {
-            m_errorHandler = errorHandler;
         }
 
-        [HttpGet("{role}")]
-        //TODO: change return value on something valid (user should receive json data)
-        // all validation is already done at constructor
-        public void Get(string role)
+        [Authorize(Policy = Policies.AdminAndDev)]
+        [HttpGet("dev")]
+        public void GetDev()
         {
-            AuthorizationService service = null;
-            if (TryGetService(out service))
-            {
-                if (role == Role.Admin.Value)
-                {
-                    service.IsAdminRole();
-                }
-                else if (role == Role.Dev.Value)
-                {
-                    service.IsDevRole();
-                }
-                else if (role == Role.User.Value)
-                {
-                    service.IsUserRole();
-                }
-                else
-                {
-                    m_errorHandler.SetErrorData(400, "Wrong role specified at url");
-                }
-            }
         }
 
-        private bool TryGetService(out AuthorizationService service)
+        [Authorize(Policy = Policies.All)]
+        [HttpGet("public")]
+        public void GetPublic()
         {
-            StringValues header;
-            service = null;
-            if (Request.Headers.TryGetValue("Authorization", out header))
-            {
-                string authHeader = header.ToString();
-                authHeader = authHeader.Substring("Bearer ".Length).Trim();
-
-                service = new AuthorizationService(m_errorHandler);
-                service.Init(authHeader);
-
-                return true;
-            }
-
-            return false;
         }
-
-        private AuthorizationService m_service;
-        private ErrorHandler m_errorHandler;
     }
 }
