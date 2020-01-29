@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+
 using Microsoft.IdentityModel.Tokens;
 
 using AuthService.DAL;
@@ -38,7 +39,7 @@ namespace AuthService
                 return null;
             }
 
-            string token = CreateToken(m_username, userData.role);
+            string token = CreateToken(userData);
             
             return new Token { token = token };
         }
@@ -46,9 +47,10 @@ namespace AuthService
         public Token RegisterUser(JsonElement data)
         {
             string token = null;
-            if (m_mongo.AddNewUer(m_username, m_password, data))
+            User nUser = m_mongo.AddNewUer(m_username, m_password, data);
+            if (nUser != null)
             {
-                token = CreateToken(m_username);
+                token = CreateToken(nUser);
             }
             else
             {
@@ -70,13 +72,8 @@ namespace AuthService
             return "User successfully removed !";
         }
 
-        private string CreateToken(string username, Role role = null)
+        private string CreateToken(User user)
         {
-            if (role == null)
-            {
-                role = Role.User;
-            }
-
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(Secret.secret);
 
@@ -84,8 +81,9 @@ namespace AuthService
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(CustomClaimTypes.Name.Value, username),
-                    new Claim(CustomClaimTypes.Role.Value, role.Value)
+                    new Claim(CustomClaimTypes.Name.Value, user.name),
+                    new Claim(CustomClaimTypes.Role.Value, user.role.Value),
+                    new Claim(CustomClaimTypes.Custom.Value, user.Data.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddDays(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

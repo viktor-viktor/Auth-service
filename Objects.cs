@@ -25,4 +25,5 @@ public class CustomClaimTypes
 
     public static CustomClaimTypes Name { get { return new CustomClaimTypes("name"); } }
     public static CustomClaimTypes Role { get { return new CustomClaimTypes("role"); } }
+    public static CustomClaimTypes Custom { get { return new CustomClaimTypes("custom"); } }
 }

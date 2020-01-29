@@ -27,13 +27,12 @@ namespace AuthService.DAL
         private MongoClient m_client = null;
         private IMongoDatabase m_db = null;
         
-        public bool AddNewUer(string name, string psw, JsonElement data, Role role = null)
+        public User AddNewUer(string name, string psw, JsonElement data, Role role = null)
         {
             if (role == null) role = Role.User;
 
             IMongoCollection<User> users = m_db.GetCollection<User>("Users");
-
-            User nUser = new User() { name = name, psw = psw, role = role , Data = BsonDocument.Parse(JsonSerializer.Serialize(data)) };
+            User nUser = new User() { name = name, psw = psw, role = role , Data = BsonDocument.Parse(data.ToString())};
 
             try
             {
@@ -41,10 +40,10 @@ namespace AuthService.DAL
             }
             catch (Exception e)
             {
-                return false;
+                return null;
             }
 
-            return true;
+            return nUser;
         }
 
         public bool RemoveUser(string name, string psw)
