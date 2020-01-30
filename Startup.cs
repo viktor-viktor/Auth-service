@@ -37,7 +37,11 @@ namespace AuthService
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             // mongodb service should be registred here
 
-            services.AddSingleton<MongoDAL>();
+            string connection = Configuration.GetSection("MongoDB:connection").Value;
+            string dbName = Configuration.GetSection("MongoDB:dbName").Value;
+            services.AddSingleton<MongoDAL>(x => 
+                new MongoDAL(connection, dbName));
+
             services.AddScoped<ErrorHandler>();
 
             var key = Encoding.ASCII.GetBytes(Secret.secret);

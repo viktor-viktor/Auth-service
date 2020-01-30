@@ -7,13 +7,12 @@ using MongoDB.Driver;
 
 namespace AuthService.DAL
 {
-    //TODO: mongo should be configured with json file, 
     public class MongoDAL
     {
-        public MongoDAL()
+        public MongoDAL(string connectionString, string dbName)
         {
-            m_client = new MongoClient("mongodb://localhost:27017?connect=replicaSet");
-            m_db = m_client.GetDatabase("TestC");
+            m_client = new MongoClient(connectionString);
+            m_db = m_client.GetDatabase(dbName);
 
             if (!m_db.ListCollectionNames().ToList().Contains("Users"))
             {
