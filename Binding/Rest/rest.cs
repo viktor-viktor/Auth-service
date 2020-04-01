@@ -37,6 +37,8 @@ namespace AuthService.Binding.Rest
             return retVal;
         }
 
+        // TODO: change JsonElement for custom json data class with possibility to make request withoud body
+        // by specifying data = null
         [HttpPost]
         public Token Post([FromBody] JsonElement data)
         {

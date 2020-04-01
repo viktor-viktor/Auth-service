@@ -4,3 +4,4 @@ bin
 obj
 .idea
 __pycache__
+config.bat
