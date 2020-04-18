@@ -1,5 +1,5 @@
 @echo off
-config.bat
+call config.bat
 
 call start_replica_set.bat
 

@@ -3,7 +3,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://10.41.2.231:64853",
+      "applicationUrl": "http://localhost:64853",
       "sslPort": 0
 
     }
@@ -14,7 +14,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "http://10.41.2.231:64853",
+      "applicationUrl": "http://localhost:64853",
       "Logging": {
         "LogLevel": {
           "Default": "Debug"
@@ -26,7 +26,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Production"
       },
-      "applicationUrl": "http://10.41.2.231:64853",
+      "applicationUrl": "http://localhost:64853",
       "Logging": {
         "LogLevel": "Warning"
       }
