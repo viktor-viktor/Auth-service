@@ -3,12 +3,13 @@ using System.Text;
 using System.Text.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Primitives;
+using Microsoft.AspNetCore.Http;
 
-using AuthService.DAL;
-using AuthService.Models;
-using AuthService.Middleware;
+using AuthService.DAL.MYSQL;
 
 namespace AuthService
 {
@@ -20,54 +21,67 @@ namespace AuthService
         }
         private static string value = "bolshoi_i_moguchii_secret_takoi_shto_vse_vragi_boyatsa";
     }
-    class AuthenticationService
+
+    public class AuthenticationService
     {
-        public AuthenticationService(string username, string password, MongoDAL mongo, ErrorHandler errorHandler)
+        private MySqlDAL _sqlDal;
+        private HttpRequest _request;
+        private string _name;
+        private string _psw;
+
+        private void ParseAuthorizationHeader()
         {
-            m_errorHandler = errorHandler;
-            m_mongo = mongo;
-            m_username = username;
-            m_password = password;
+            StringValues header;
+            if (_request.Headers.TryGetValue("Authorization", out header))
+            {
+                string authHeader = header.ToString();
+                authHeader = authHeader.Substring("Basic ".Length).Trim();
+                Encoding encoding = Encoding.GetEncoding("iso-8859-1");
+                string namePsw = encoding.GetString(Convert.FromBase64String(authHeader));
+
+                int seperatorIndex = namePsw.IndexOf(':');
+                _name = namePsw.Substring(0, seperatorIndex);
+                _psw = namePsw.Substring(seperatorIndex + 1);
+            }
         }
 
-        public Token SignInUser()
+        public AuthenticationService(MySqlDAL sqlDal, IHttpContextAccessor contextAccessor)
         {
-            User userData = m_mongo.GetUserData(m_username, m_password);
-            if (userData == null)
-            {
-                m_errorHandler.SetErrorData(new HttpResult(400, "User with such credentials isn't found ! "));
-                return null;
-            }
-
-            string token = CreateToken(userData);
-            
-            return new Token { token = token };
+            _sqlDal = sqlDal;
+            _request = contextAccessor.HttpContext.Request;
         }
 
-        public Token RegisterUser(JsonElement data)
+        public async Task<string> SignInUser()
         {
-            string token = null;
-            User nUser = m_mongo.AddNewUer(m_username, m_password, data);
-            if (nUser != null)
+            ParseAuthorizationHeader();
+            User user = new User { Name = _name, Psw = _psw };
+            if (! await _sqlDal.IsUserExist(user))
             {
-                token = CreateToken(nUser);
+                //throw exception
             }
-            else
+            return CreateToken(user);
+        }
+
+        public async Task<string> RegisterUser(Role role = null)
+        {
+            if (role == null) role = Role.User;
+            ParseAuthorizationHeader();
+
+            User user = new User { Name = _name, Psw = _psw, Role = role.Value };
+
+            if (! await _sqlDal.InsertNewUser(user))
             {
-                m_errorHandler.SetErrorData(new HttpResult(400, "User with such creds already exist"));
-                return null;
+                //throw exceptions
             }
 
-            return new Token { token = token };
+            return CreateToken(user);
         }
 
         public string UnregisterUser()
         {
-            if (!m_mongo.RemoveUser(m_username, m_password))
-            {
-                m_errorHandler.SetErrorData(new HttpResult(400, "User with such credentials isn't found ! "));
-                return null;
-            }
+            ParseAuthorizationHeader();
+            User user = new User { Name = _name, Psw = _psw };
+            _sqlDal.RemoveUser(user);
 
             return "User successfully removed !";
         }
@@ -81,9 +95,9 @@ namespace AuthService
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(CustomClaimTypes.Name.Value, user.name),
-                    new Claim(CustomClaimTypes.Role.Value, user.role.Value),
-                    new Claim(CustomClaimTypes.Custom.Value, user.Data.ToString())
+                    new Claim(CustomClaimTypes.Name.Value, user.Name),
+                    new Claim(CustomClaimTypes.Role.Value, user.Role),
+                    new Claim(CustomClaimTypes.UserId.Value, user.UserId.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddDays(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -97,11 +111,6 @@ namespace AuthService
 
             return token;
         }
-
-        private string m_username;
-        private string m_password;
-        private readonly MongoDAL m_mongo;
-        private readonly ErrorHandler m_errorHandler;
     }
 
 }

@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 
 using Microsoft.IdentityModel.Tokens;
 
@@ -6,12 +7,17 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 
+
 using AuthService.DAL;
 using AuthService.Middleware;
+using AuthService.DAL.MYSQL;
 
 namespace AuthService
 {
@@ -35,15 +41,25 @@ namespace AuthService
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            // mongodb service should be registred here
 
+            services.AddHttpContextAccessor();
+
+            //databases configurations
             string connection = Configuration.GetSection("MongoDB:connection").Value;
             string dbName = Configuration.GetSection("MongoDB:dbName").Value;
             services.AddSingleton<MongoDAL>(x => 
-                new MongoDAL(connection, dbName));
+                new MongoDAL(connection, dbName)); 
 
             services.AddScoped<ErrorHandler>();
+            services.AddTransient<AuthenticationService>();
 
+            services.AddDbContextPool<MySqlContext>(options => options
+                .UseMySql(Configuration.GetSection("MySql:connection").Value, mySqlOptions => mySqlOptions
+                    .ServerVersion(new Version(8, 0, 19), ServerType.MySql)
+            ));
+            services.AddTransient<MySqlDAL>();
+
+            // auth configuration
             var key = Encoding.ASCII.GetBytes(Secret.secret);
             services.AddAuthentication(x =>
             {
@@ -74,6 +90,12 @@ namespace AuthService
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetRequiredService<MySqlContext>();
+                context.Database.EnsureCreated();
+            }
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
